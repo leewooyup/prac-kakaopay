@@ -37,9 +37,9 @@ public class PayController {
      * @return
      */
     @GetMapping("/success")
-    public ResponseEntity paySuccess(@RequestParam("pg_token") String pgToken) {
+    public String paySuccess(@RequestParam("pg_token") String pgToken) {
         KaokaoPayApproveResponse approveResponse = payService.kakaoPayApprove(pgToken);
-        return new ResponseEntity<>(approveResponse, HttpStatus.OK);
+        return "pay_completed";
     }
 
     @GetMapping("/cancel")

@@ -1,11 +1,13 @@
 package com.example.demo.pay;
 
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -14,11 +16,13 @@ import org.springframework.web.client.RestTemplate;
 import java.util.Map;
 
 @Slf4j
+@RequiredArgsConstructor
 @Service
 public class PayService {
     @Value("${my.admin}")
     private String ADMIN_KEY;
     private KakaoPayReadyResponse kakaoPayReadyResponse;
+    private final PaymentRepository paymentRepository;
 
     public KakaoPayReadyResponse kakaoPayReady(Map<String, Object> params) {
         MultiValueMap<String, Object> payParams = new LinkedMultiValueMap<>();
@@ -42,13 +46,10 @@ public class PayService {
                 url,
                 requestEntity,
                 KakaoPayReadyResponse.class);
-        /*
-        데이터베이스 저장 로직
-        etc...
-         */
         return kakaoPayReadyResponse;
     }
 
+    @Transactional
     public KaokaoPayApproveResponse kakaoPayApprove(String pgToken) {
         MultiValueMap<String, String> payParams = new LinkedMultiValueMap<>();
         payParams.add("cid", "TC0ONETIME");
@@ -67,6 +68,17 @@ public class PayService {
                 requestEntity,
                 KaokaoPayApproveResponse.class);
         log.info("결제 승인 응답객체: " + approveResponse);
+
+        Payment payment = Payment.builder()
+                .order_id(approveResponse.getPartner_order_id())
+                .item_name(approveResponse.getItem_name())
+                .quantity(approveResponse.getQuantity())
+                .pay_tot_price(approveResponse.getAmount().getTotal())
+                .pay_user("woo")
+                .pay_bank("KB국민")
+                .pay_at(approveResponse.getApproved_at())
+                .build();
+        paymentRepository.save(payment);
         return approveResponse;
     }
 

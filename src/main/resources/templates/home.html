@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        #btn-kakao {
+            background-color: #fee500;
+            color: #000;
+            border-radius: 12px;
+            padding: 10px 20px;
+        }
+    </style>
+</head>
+<body>
+    <button id="btn-kakao">카카오페이</button>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <script>
+        $(function() {
+            $("#btn-kakao").click(function() {
+                $.ajax({
+                   url: '/pay/ready',
+                   type: 'get',
+                   data: {
+                        item_name: "초코파이",
+                        quantity: "4",
+                        total_amount: "8800",
+                        tax_free_amount: "0",
+                   },
+                   success: function(response) {
+                        alert(response.next_redirect_pc_url);
+                        location.href = response.next_redirect_pc_url;
+                   },
+                   error: function(xhr, err, status) {
+                        console.log(xhr.responseText);
+                        alert(err + "이(가) 발생했습니다: " + status);
+                   }
+                });
+            });
+        });
+
+    </script>
+</body>
+</html>

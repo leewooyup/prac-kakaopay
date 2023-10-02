@@ -1,1 +1,13 @@
-
+spring:
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+  devtools:
+    livereload:
+      enabled: true
+    restart:
+      enabled: true
+server:
+  port: 83
+my:
+  admin: 55fb9f6ddc6bb9d5ec4042607e477d7c
